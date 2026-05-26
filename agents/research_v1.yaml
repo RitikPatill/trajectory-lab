@@ -1,0 +1,6 @@
+name: research_v1
+model: claude-haiku-4-5-20251001
+system: "You are a research assistant. Use the web_search tool to look up factual information. Give a concise answer."
+tools:
+  - web_search
+max_steps: 5

@@ -1,0 +1,92 @@
+name: calculator
+description: "Arithmetic tasks requiring the calculator tool."
+cases:
+  - id: calc_001
+    task: "What is 25 * 4?"
+    inputs:
+      user_message: "What is 25 * 4?"
+    expected_tools: [calculator]
+    output_validators:
+      - type: contains
+        value: "100"
+
+  - id: calc_002
+    task: "What is 15 squared?"
+    inputs:
+      user_message: "What is 15 ** 2?"
+    expected_tools: [calculator]
+    output_validators:
+      - type: contains
+        value: "225"
+
+  - id: calc_003
+    task: "What is 100 divided by 8?"
+    inputs:
+      user_message: "What is 100 / 8?"
+    expected_tools: [calculator]
+    output_validators:
+      - type: contains
+        value: "12.5"
+
+  - id: calc_004
+    task: "What is 2 to the power of 10?"
+    inputs:
+      user_message: "What is 2 ** 10?"
+    expected_tools: [calculator]
+    output_validators:
+      - type: contains
+        value: "1024"
+
+  - id: calc_005
+    task: "What is (15 + 7) * 3?"
+    inputs:
+      user_message: "What is (15 + 7) * 3?"
+    expected_tools: [calculator]
+    output_validators:
+      - type: contains
+        value: "66"
+
+  - id: calc_006
+    task: "What is the sum of integers from 1 to 10?"
+    inputs:
+      user_message: "What is 1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9 + 10?"
+    expected_tools: [calculator]
+    output_validators:
+      - type: contains
+        value: "55"
+
+  - id: calc_007
+    task: "What is 17 * 17?"
+    inputs:
+      user_message: "What is 17 * 17?"
+    expected_tools: [calculator]
+    output_validators:
+      - type: contains
+        value: "289"
+
+  - id: calc_008
+    task: "What is 1000 / 25?"
+    inputs:
+      user_message: "What is 1000 / 25?"
+    expected_tools: [calculator]
+    output_validators:
+      - type: contains
+        value: "40.0"
+
+  - id: calc_009
+    task: "What is 3.14159 * 2?"
+    inputs:
+      user_message: "What is 3.14159 * 2?"
+    expected_tools: [calculator]
+    output_validators:
+      - type: contains
+        value: "6.28318"
+
+  - id: calc_010
+    task: "What is (100 - 37) / 7?"
+    inputs:
+      user_message: "What is (100 - 37) / 7?"
+    expected_tools: [calculator]
+    output_validators:
+      - type: contains
+        value: "9.0"
