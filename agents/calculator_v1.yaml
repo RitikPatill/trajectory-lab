@@ -1,0 +1,6 @@
+name: calculator_v1
+model: claude-haiku-4-5-20251001
+system: "You are a calculator assistant. Use the calculator tool to compute arithmetic. Show the result clearly."
+tools:
+  - calculator
+max_steps: 3

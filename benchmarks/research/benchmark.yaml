@@ -1,0 +1,152 @@
+name: research
+description: "Factual look-up tasks requiring web_search."
+cases:
+  - id: research_001
+    task: "What is the capital of France?"
+    inputs:
+      user_message: "What is the capital of France?"
+    expected_tools: [web_search]
+    rubric:
+      criteria:
+        - id: correct_answer
+          description: "Response names Paris as the capital."
+          weight: 1.0
+      pass_threshold: 1.0
+    output_validators:
+      - type: contains
+        value: "Paris"
+
+  - id: research_002
+    task: "What is the population of Germany?"
+    inputs:
+      user_message: "What is the population of Germany?"
+    expected_tools: [web_search]
+    rubric:
+      criteria:
+        - id: correct_answer
+          description: "Response gives a population figure around 84 million."
+          weight: 1.0
+      pass_threshold: 1.0
+    output_validators:
+      - type: contains
+        value: "84"
+
+  - id: research_003
+    task: "Who invented the telephone?"
+    inputs:
+      user_message: "Who invented the telephone?"
+    expected_tools: [web_search]
+    rubric:
+      criteria:
+        - id: correct_answer
+          description: "Response names Alexander Graham Bell."
+          weight: 1.0
+      pass_threshold: 1.0
+    output_validators:
+      - type: contains
+        value: "Bell"
+
+  - id: research_004
+    task: "What is the boiling point of water in Fahrenheit?"
+    inputs:
+      user_message: "What is the boiling point of water in Fahrenheit?"
+    expected_tools: [web_search]
+    rubric:
+      criteria:
+        - id: correct_answer
+          description: "Response states 212 degrees Fahrenheit."
+          weight: 1.0
+      pass_threshold: 1.0
+    output_validators:
+      - type: contains
+        value: "212"
+
+  - id: research_005
+    task: "When did World War 2 end?"
+    inputs:
+      user_message: "When did World War 2 end?"
+    expected_tools: [web_search]
+    rubric:
+      criteria:
+        - id: correct_answer
+          description: "Response states 1945."
+          weight: 1.0
+      pass_threshold: 1.0
+    output_validators:
+      - type: contains
+        value: "1945"
+
+  - id: research_006
+    task: "What is the speed of light in meters per second?"
+    inputs:
+      user_message: "What is the speed of light in meters per second?"
+    expected_tools: [web_search]
+    rubric:
+      criteria:
+        - id: correct_answer
+          description: "Response gives approximately 299,792,458 m/s."
+          weight: 1.0
+      pass_threshold: 1.0
+    output_validators:
+      - type: contains
+        value: "299"
+
+  - id: research_007
+    task: "Who wrote Romeo and Juliet?"
+    inputs:
+      user_message: "Who wrote Romeo and Juliet?"
+    expected_tools: [web_search]
+    rubric:
+      criteria:
+        - id: correct_answer
+          description: "Response names William Shakespeare."
+          weight: 1.0
+      pass_threshold: 1.0
+    output_validators:
+      - type: contains
+        value: "Shakespeare"
+
+  - id: research_008
+    task: "What is the largest planet in our solar system?"
+    inputs:
+      user_message: "What is the largest planet in our solar system?"
+    expected_tools: [web_search]
+    rubric:
+      criteria:
+        - id: correct_answer
+          description: "Response names Jupiter."
+          weight: 1.0
+      pass_threshold: 1.0
+    output_validators:
+      - type: contains
+        value: "Jupiter"
+
+  - id: research_009
+    task: "What is the chemical symbol for gold?"
+    inputs:
+      user_message: "What is the chemical symbol for gold?"
+    expected_tools: [web_search]
+    rubric:
+      criteria:
+        - id: correct_answer
+          description: "Response states the symbol Au."
+          weight: 1.0
+      pass_threshold: 1.0
+    output_validators:
+      - type: contains
+        value: "Au"
+
+  - id: research_010
+    task: "In what year did the Berlin Wall fall?"
+    inputs:
+      user_message: "In what year did the Berlin Wall fall?"
+    expected_tools: [web_search]
+    rubric:
+      criteria:
+        - id: correct_answer
+          description: "Response states 1989."
+          weight: 1.0
+      pass_threshold: 1.0
+    output_validators:
+      - type: contains
+        value: "1989"
