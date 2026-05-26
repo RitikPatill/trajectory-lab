@@ -8,16 +8,21 @@ Most agent projects ship with a `examples/` folder and a vibe check. Production 
 
 Instead of grading only the final answer, TrajectoryLab captures the **full agent trajectory** — system prompt, tool calls, tool results, reasoning steps, retries, and final response — then runs a configurable panel of **judges** over both the trajectory and the output. Results land in SQLite and surface through a Next.js dashboard so you can compare agent versions, drill into individual runs, and catch regressions as you iterate.
 
-## What works now (M1)
+## What works now (M2)
 
-- `tlab` Python package installable via `uv sync`; sub-packages stubbed: `runner`, `bench`, `judges`, `api`, `storage`
+- `tlab` Python package installable via `uv sync`; sub-packages stubbed: `bench`, `judges`, `api`, `storage`
+- **`tlab/runner/`** — fully implemented agent loop (M2):
+  - `trace.py`: `Trajectory`, `Step`, `ToolCall`, `ToolResult` Pydantic v2 models capturing every step (messages, tool calls, tool results, latency, token counts)
+  - `tools.py`: `web_search` and `calculator` mock tools + `TOOL_DEFINITIONS` / `DEFAULT_HANDLERS`
+  - `loop.py`: `run_agent()` — synchronous Anthropic-SDK agent loop with configurable `max_steps`, injectable client for testing
+- `tests/test_runner.py` — 7 pytest tests covering tool unit tests, end-turn, tool-call-then-end-turn, and max-steps guard; no live API key required
 - `tlab/cli.py` — Typer app with `run` and `serve` commands wired to the entry point (`tlab --help` works)
 - `web/` — Next.js 14 App Router skeleton that compiles cleanly (`npm run build` passes)
 - GitHub Actions CI: ruff lint + format check on every push/PR; Next.js build check in parallel
 - `pyproject.toml` with full runtime dependency list (anthropic, fastapi, sqlmodel, typer, pydantic, pyyaml, httpx), ruff config (E, F, I, UP, line-length 88), hatchling build backend
 - MIT license, `.gitignore`, `uv.lock`
 
-All end-to-end features (agent runner, judges, storage, dashboard) are implemented in M2–M6.
+Storage, judges, and dashboard are implemented in M3–M6.
 
 ## Target demo flow
 
@@ -49,15 +54,16 @@ flowchart LR
 ```
 trajectory-lab/
   tlab/              # python package
-    runner/          # agent loop, trace capture         (M2)
-    judges/          # rubric, trajectory, output judges  (M4)
+    runner/          # agent loop, trace capture         (M2 ✓)
     bench/           # yaml loader                        (M3)
+    judges/          # rubric, trajectory, output judges  (M4)
     api/             # fastapi app                        (M5)
     storage/         # sqlmodel models, migrations        (M5)
     cli.py           # tlab CLI entry point
+  tests/             # pytest suite (7 tests, no API key required)  (M2 ✓)
   web/               # next.js dashboard                  (M6)
   benchmarks/        # sample benchmark suites            (M3)
-  agents/            # sample agent configs               (M2)
+  agents/            # sample agent configs               (M3)
   docs/              # screenshots, architecture, demo gif
 ```
 
@@ -66,6 +72,7 @@ trajectory-lab/
 ```bash
 # Backend
 uv sync
+uv run pytest            # 7 tests, no API key required
 uv run tlab --help
 
 # Frontend
@@ -87,7 +94,7 @@ npm run dev       # http://localhost:3000
 | Milestone | Status |
 |---|---|
 | M1 — scaffold + readme | ✅ done |
-| M2 — agent runner + trace | 🔲 planned |
+| M2 — agent runner + trace | ✅ done |
 | M3 — benchmark loader | 🔲 planned |
 | M4 — judge panel | 🔲 planned |
 | M5 — FastAPI + SQLite | 🔲 planned |
