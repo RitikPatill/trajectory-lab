@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 
 
 class OutputValidator(BaseModel):
-    type: Literal["contains", "regex", "json_schema"]
+    type: Literal["exact_match", "regex", "json_schema"]
     value: str
 
 
@@ -28,6 +28,7 @@ class BenchCase(BaseModel):
     task: str
     inputs: dict[str, Any]
     expected_tools: list[str] = Field(default_factory=list)
+    max_steps: int | None = None
     rubric: Rubric | None = None
     output_validators: list[OutputValidator] = Field(default_factory=list)
 
