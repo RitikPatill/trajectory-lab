@@ -8,9 +8,9 @@ Most agent projects ship with a `examples/` folder and a vibe check. Production 
 
 Instead of grading only the final answer, TrajectoryLab captures the **full agent trajectory** — system prompt, tool calls, tool results, reasoning steps, retries, and final response — then runs a configurable panel of **judges** over both the trajectory and the output. Results land in SQLite and surface through a Next.js dashboard so you can compare agent versions, drill into individual runs, and catch regressions as you iterate.
 
-## What works now (M3)
+## What works now (M4)
 
-- `tlab` Python package installable via `uv sync`; sub-packages stubbed: `judges`, `api`, `storage`
+- `tlab` Python package installable via `uv sync`; sub-packages stubbed: `api`, `storage`
 - **`tlab/runner/`** — fully implemented agent loop (M2):
   - `trace.py`: `Trajectory`, `Step`, `ToolCall`, `ToolResult` Pydantic v2 models capturing every step (messages, tool calls, tool results, latency, token counts)
   - `tools.py`: `web_search` and `calculator` mock tools + `TOOL_DEFINITIONS` / `DEFAULT_HANDLERS`
@@ -18,16 +18,21 @@ Instead of grading only the final answer, TrajectoryLab captures the **full agen
 - **`tlab/bench/`** — benchmark loader (M3):
   - `schema.py`: `Benchmark`, `BenchCase`, `AgentConfig`, `Rubric`, `RubricCriterion`, `OutputValidator` Pydantic v2 models
   - `loader.py`: `load_benchmark(path)` and `load_agent(path)` — validates YAML against schema, raises `FileNotFoundError` / `ValidationError` on bad input
+- **`tlab/judges/`** — judge panel (M4):
+  - `schema.py`: `JudgeVerdict` and `CriterionGrade` Pydantic v2 models (shared by all judges, JSON-serializable for M5 storage)
+  - `output.py`: `OutputJudge` — deterministic `exact_match` / `regex` / `json_schema` validators against `final_response`
+  - `trajectory.py`: `TrajectoryJudge` — checks expected tools were called, step count within `max_steps`, and no 3-consecutive-error loop occurred
+  - `rubric.py`: `RubricJudge` — calls Claude via forced `grade_rubric` tool use; returns weighted criterion scores; injectable client for testing
 - **`benchmarks/`** — two reference benchmark suites (M3):
   - `benchmarks/research/` — 10 factual look-up cases (`web_search` tool, per-case rubric, `contains` validators)
   - `benchmarks/calculator/` — 10 arithmetic cases (`calculator` tool, exact-string validators)
 - **`agents/`** — two sample agent configs (M3): `research_v1.yaml`, `calculator_v1.yaml`
 - **`tlab/cli.py`** — `tlab run --benchmark X --agent Y` fully wired: loads benchmark + agent, loops over cases calling `run_agent()`, streams per-case status to stdout
-- `tests/test_runner.py` — 7 pytest tests (M2); `tests/test_bench.py` — 10 pytest tests (M3); no live API key required
+- `tests/test_runner.py` — 7 pytest tests (M2); `tests/test_bench.py` — 10 pytest tests (M3); `tests/test_judges.py` — 20 pytest tests (M4); no live API key required
 - `web/` — Next.js 14 App Router skeleton that compiles cleanly (`npm run build` passes)
 - GitHub Actions CI: ruff lint + format check on every push/PR; Next.js build check in parallel
 
-Judges and dashboard are implemented in M4–M6.
+API, storage, and dashboard are implemented in M5–M6.
 
 ## Target demo flow
 
@@ -63,11 +68,11 @@ trajectory-lab/
   tlab/              # python package
     runner/          # agent loop, trace capture         (M2 ✓)
     bench/           # yaml loader                        (M3 ✓)
-    judges/          # rubric, trajectory, output judges  (M4)
+    judges/          # rubric, trajectory, output judges  (M4 ✓)
     api/             # fastapi app                        (M5)
     storage/         # sqlmodel models, migrations        (M5)
     cli.py           # tlab CLI entry point
-  tests/             # pytest suite (17 tests, no API key required) (M3 ✓)
+  tests/             # pytest suite (37 tests, no API key required) (M4 ✓)
   web/               # next.js dashboard                  (M6)
   benchmarks/        # sample benchmark suites            (M3 ✓)
   agents/            # sample agent configs               (M3 ✓)
@@ -79,7 +84,7 @@ trajectory-lab/
 ```bash
 # Backend
 uv sync
-uv run pytest            # 17 tests, no API key required
+uv run pytest            # 37 tests, no API key required
 uv run tlab --help
 
 # Run a benchmark (requires ANTHROPIC_API_KEY)
@@ -92,13 +97,15 @@ npm install
 npm run dev       # http://localhost:3000
 ```
 
-## Judges (planned, M4)
+## Judges
 
 | Judge | Type | What it checks |
 |---|---|---|
 | `RubricJudge` | LLM-as-judge | YAML rubric: criteria, weights, pass thresholds |
-| `TrajectoryJudge` | Deterministic | expected tool called, max steps, no error loops |
-| `OutputJudge` | Deterministic | exact-match / regex / JSON-schema validators |
+| `TrajectoryJudge` | Deterministic | expected tools called, step count within `max_steps`, no 3-consecutive error loops |
+| `OutputJudge` | Deterministic | `exact_match` / `regex` / `json_schema` validators |
+
+All judges accept `(trajectory: Trajectory, case: BenchCase) → JudgeVerdict`. `RubricJudge` uses forced tool use (`grade_rubric`) so grades are structured JSON, not free text. The client is injectable — no API key needed in tests.
 
 ## Status
 
@@ -107,7 +114,7 @@ npm run dev       # http://localhost:3000
 | M1 — scaffold + readme | ✅ done |
 | M2 — agent runner + trace | ✅ done |
 | M3 — benchmark loader | ✅ done |
-| M4 — judge panel | 🔲 planned |
+| M4 — judge panel | ✅ done |
 | M5 — FastAPI + SQLite | 🔲 planned |
 | M6 — Next.js dashboard | 🔲 planned |
 
