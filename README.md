@@ -8,7 +8,7 @@ Most agent projects ship with a `examples/` folder and a vibe check. Production 
 
 Instead of grading only the final answer, TrajectoryLab captures the **full agent trajectory** — system prompt, tool calls, tool results, reasoning steps, retries, and final response — then runs a configurable panel of **judges** over both the trajectory and the output. Results land in SQLite and surface through a Next.js dashboard so you can compare agent versions, drill into individual runs, and catch regressions as you iterate.
 
-## What works now (M5)
+## What works now (M6)
 
 - `tlab` Python package installable via `uv sync`
 - **`tlab/runner/`** — fully implemented agent loop (M2):
@@ -35,10 +35,15 @@ Instead of grading only the final answer, TrajectoryLab captures the **full agen
 - **`benchmarks/`** — two reference benchmark suites (M3): `research/` (10 cases) and `calculator/` (10 cases)
 - **`agents/`** — two sample agent configs (M3): `research_v1.yaml`, `calculator_v1.yaml`
 - `tests/`: 54 pytest tests total (M2–M5); no live API key required
-- `web/` — Next.js 14 App Router skeleton that compiles cleanly (`npm run build` passes)
+- **`web/`** — Next.js 14 App Router dashboard, Tailwind CSS (M6):
+  - `src/lib/types.ts` — TypeScript interfaces mirroring all Pydantic schemas and trace models
+  - `src/lib/api.ts` — typed fetch helpers (`getRuns`, `getRun`, `getCase`); base URL from `NEXT_PUBLIC_API_URL` (defaults to `http://localhost:8000`)
+  - `/runs` — runs table with pass rate bar, mean score badge, cases column
+  - `/runs/[id]` — run header (agent, model, benchmark, date, aggregate stats) + case card grid with score badges
+  - `/runs/[id]/cases/[caseId]` — full trajectory timeline (system → user → assistant/tool calls → tool results → final) + three-judge panel with per-criterion rationale + token/latency badges
+  - `ScoreBadge`, `StatBadges`, `TrajectoryTimeline`, `JudgePanel` — shared server components; `<details>`/`<summary>` for collapsible blocks (no client JS needed)
+  - All pages use `export const dynamic = 'force-dynamic'` so `npm run build` succeeds without a running API
 - GitHub Actions CI: ruff lint + format check on every push/PR; Next.js build check in parallel
-
-Next.js dashboard is implemented in M6.
 
 ## Target demo flow
 
@@ -79,7 +84,7 @@ trajectory-lab/
     storage/         # sqlmodel models, crud              (M5 ✓)
     cli.py           # tlab CLI entry point
   tests/             # pytest suite (54 tests, no API key required) (M5 ✓)
-  web/               # next.js dashboard                  (M6)
+  web/               # next.js dashboard                  (M6 ✓)
   benchmarks/        # sample benchmark suites            (M3 ✓)
   agents/            # sample agent configs               (M3 ✓)
   docs/              # screenshots, architecture, demo gif
@@ -125,7 +130,7 @@ All judges accept `(trajectory: Trajectory, case: BenchCase) → JudgeVerdict`. 
 | M3 — benchmark loader | ✅ done |
 | M4 — judge panel | ✅ done |
 | M5 — FastAPI + SQLite | ✅ done |
-| M6 — Next.js dashboard | 🔲 planned |
+| M6 — Next.js dashboard | ✅ done |
 
 ## License
 
