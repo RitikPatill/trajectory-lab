@@ -5,7 +5,7 @@
  * Override by setting NEXT_PUBLIC_API_URL in .env.local.
  */
 
-import type { CaseDetail, RunDetail, RunSummary } from './types'
+import type { CaseDetail, CompareOut, RunDetail, RunSummary } from './types'
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
 
@@ -40,6 +40,16 @@ export async function getCase(
     )
     if (!res.ok) return null
     return (await res.json()) as CaseDetail
+  } catch {
+    return null
+  }
+}
+
+export async function getCompare(a: number, b: number): Promise<CompareOut | null> {
+  try {
+    const res = await fetch(`${BASE_URL}/compare?a=${a}&b=${b}`, { cache: 'no-store' })
+    if (!res.ok) return null
+    return (await res.json()) as CompareOut
   } catch {
     return null
   }

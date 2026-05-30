@@ -25,6 +25,20 @@ export default function RootLayout({
           <span className="text-sm text-gray-400">
             trajectory-level evaluation for tool-using LLM agents
           </span>
+          <div className="ml-auto flex items-center gap-4">
+            <Link
+              href="/runs"
+              className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors"
+            >
+              Runs
+            </Link>
+            <Link
+              href="/compare"
+              className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors"
+            >
+              Compare
+            </Link>
+          </div>
         </nav>
         <main className="px-6 py-6">{children}</main>
       </body>
