@@ -8,7 +8,7 @@ Most agent projects ship with a `examples/` folder and a vibe check. Production 
 
 Instead of grading only the final answer, TrajectoryLab captures the **full agent trajectory** — system prompt, tool calls, tool results, reasoning steps, retries, and final response — then runs a configurable panel of **judges** over both the trajectory and the output. Results land in SQLite and surface through a Next.js dashboard so you can compare agent versions, drill into individual runs, and catch regressions as you iterate.
 
-## What works now (M7)
+## What works now (M8)
 
 - `tlab` Python package installable via `uv sync`
 - **`tlab/runner/`** — fully implemented agent loop (M2):
@@ -33,7 +33,7 @@ Instead of grading only the final answer, TrajectoryLab captures the **full agen
   - OpenAPI docs at `/docs`, ReDoc at `/redoc`
 - **`tlab/cli.py`** — `tlab run` fully wired end-to-end: loads benchmark + agent, loops over cases, runs all three judges, persists to SQLite, prints pass/fail per case + final summary; `tlab serve` starts uvicorn; `tlab compare <a> <b>` prints a per-case score-delta table with improved/regressed/unchanged summary
 - **`benchmarks/`** — two reference benchmark suites (M3): `research/` (10 cases) and `calculator/` (10 cases)
-- **`agents/`** — two sample agent configs (M3): `research_v1.yaml`, `calculator_v1.yaml`
+- **`agents/`** — three sample agent configs: `research_v1.yaml`, `research_v2.yaml`, `calculator_v1.yaml`
 - `tests/`: 54 pytest tests total (M2–M5); no live API key required
 - **`web/`** — Next.js 14 App Router dashboard, Tailwind CSS (M6):
   - `src/lib/types.ts` — TypeScript interfaces mirroring all Pydantic schemas and trace models
@@ -47,12 +47,42 @@ Instead of grading only the final answer, TrajectoryLab captures the **full agen
   - All pages use `export const dynamic = 'force-dynamic'` so `npm run build` succeeds without a running API
 - GitHub Actions CI: ruff lint + format check on every push/PR; Next.js build check in parallel
 
+![Dashboard screenshot](docs/screenshot.png)
+
+## Quick Demo
+
+### Seeded data (no API key required)
+```bash
+bash scripts/demo.sh
+```
+Populates the database with two pre-recorded research runs, starts the API on `:8000` and the dashboard on `:3000`, then opens your browser.
+
+### Live run (requires `ANTHROPIC_API_KEY`)
+```bash
+export ANTHROPIC_API_KEY=sk-ant-...
+bash scripts/demo.sh
+```
+Runs the research benchmark against `research_v1.yaml` and `research_v2.yaml` before launching the dashboard.
+
+### Recording the CLI portion
+```bash
+bash scripts/record_demo.sh   # requires asciinema; agg for GIF conversion
+```
+Saves `docs/demo.cast` (and `docs/demo.gif` if `agg` is available).
+
+### Manual demo flow
+1. `bash scripts/demo.sh` — seed + start servers
+2. Open http://localhost:3000 — see two runs with aggregate pass rates
+3. Click a run → grid of 10 cases; red cards are failures
+4. Click a failing case → trajectory timeline + three judge verdicts
+5. Navigate to **Compare** → pick Run 1 vs Run 2 → per-case delta table (red = regression, green = improvement)
+
 ## Target demo flow
 
 1. `uv run tlab run --benchmark benchmarks/research --agent agents/research_v1.yaml` — runs 10 cases, streams progress.
 2. Open the dashboard at `localhost:3000`. The new run appears with aggregate scores (rubric mean, tool-precision, pass rate).
 3. Click a failing case — see the trajectory timeline (system → tool call → tool result → assistant), each judge's verdict with rationale, token + latency stats.
-4. Edit `agents/research_v1.yaml` → save as `research_v2.yaml`, re-run.
+4. `uv run tlab run --benchmark benchmarks/research --agent agents/research_v2.yaml` — run the improved config (already in repo).
 5. Open the **Compare** view, pick v1 vs v2 — see per-case score deltas, regressions highlighted in red, improvements in green.
 
 ## Architecture
@@ -88,8 +118,9 @@ trajectory-lab/
   tests/             # pytest suite (54 tests, no API key required) (M5 ✓)
   web/               # next.js dashboard + compare view   (M7 ✓)
   benchmarks/        # sample benchmark suites            (M3 ✓)
-  agents/            # sample agent configs               (M3 ✓)
-  docs/              # screenshots, architecture, demo gif
+  agents/            # sample agent configs (research v1/v2, calculator v1) (M8 ✓)
+  scripts/           # demo.sh, seed_demo.py, record_demo.sh, _demo_commands.sh (M8 ✓)
+  docs/              # screenshot.png, demo.gif              (M8 ✓)
 ```
 
 ## Quick start
@@ -137,6 +168,7 @@ All judges accept `(trajectory: Trajectory, case: BenchCase) → JudgeVerdict`. 
 | M5 — FastAPI + SQLite | ✅ done |
 | M6 — Next.js dashboard | ✅ done |
 | M7 — compare + regression view | ✅ done |
+| M8 — demo + screenshots | ✅ done |
 
 ## License
 
