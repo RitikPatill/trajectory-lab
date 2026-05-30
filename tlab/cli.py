@@ -83,6 +83,72 @@ def run(
 
 
 @app.command()
+def compare(
+    run_a: int = typer.Argument(..., help="First run ID"),
+    run_b: int = typer.Argument(..., help="Second run ID"),
+) -> None:
+    """Print a per-case comparison between two runs."""
+    from sqlmodel import Session, select
+
+    from tlab.storage import CaseResult, get_engine
+
+    with Session(get_engine()) as session:
+        cases_a = {
+            cr.case_id: cr
+            for cr in session.exec(
+                select(CaseResult).where(CaseResult.run_id == run_a)
+            ).all()
+        }
+        cases_b = {
+            cr.case_id: cr
+            for cr in session.exec(
+                select(CaseResult).where(CaseResult.run_id == run_b)
+            ).all()
+        }
+
+    shared_ids = sorted(set(cases_a.keys()) & set(cases_b.keys()))
+    if not shared_ids:
+        typer.echo(f"No shared cases between run {run_a} and run {run_b}.")
+        raise typer.Exit(1)
+
+    typer.echo(f"Comparing Run #{run_a} vs Run #{run_b}")
+    typer.echo("")
+    header = f"{'Case':<20} {'Score A':>8} {'Score B':>8} {'Delta':>8}  Status"
+    typer.echo(header)
+    typer.echo("-" * len(header))
+
+    improved = regressed = unchanged = 0
+    total_delta = 0.0
+
+    for cid in shared_ids:
+        sa = cases_a[cid].aggregate_score
+        sb = cases_b[cid].aggregate_score
+        delta = sb - sa
+        total_delta += delta
+        if delta > 0.001:
+            status = "IMPROVED"
+            improved += 1
+        elif delta < -0.001:
+            status = "REGRESSED"
+            regressed += 1
+        else:
+            status = "UNCHANGED"
+            unchanged += 1
+        sign = "+" if delta >= 0 else ""
+        typer.echo(
+            f"{cid:<20} {sa*100:>7.1f}% {sb*100:>7.1f}% {sign}{delta*100:>6.1f}%  {status}"
+        )
+
+    mean_delta = total_delta / len(shared_ids) if shared_ids else 0.0
+    sign = "+" if mean_delta >= 0 else ""
+    typer.echo("")
+    typer.echo(
+        f"Improved: {improved}  Regressed: {regressed}  Unchanged: {unchanged}"
+        f"  Mean delta: {sign}{mean_delta*100:.2f}%"
+    )
+
+
+@app.command()
 def serve(
     host: str = typer.Option("0.0.0.0", help="Bind host"),
     port: int = typer.Option(8000, help="Bind port"),

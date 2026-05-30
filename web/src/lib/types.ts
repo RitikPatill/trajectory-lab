@@ -116,3 +116,18 @@ export interface RunDetail {
   mean_score: number | null
   cases: CaseSummary[]
 }
+
+export interface CaseCompare {
+  case_id: string
+  score_a: number
+  score_b: number
+  delta: number
+  passed_a: boolean
+  passed_b: boolean
+}
+
+export interface CompareOut {
+  run_a: RunSummary
+  run_b: RunSummary
+  cases: CaseCompare[]
+}
